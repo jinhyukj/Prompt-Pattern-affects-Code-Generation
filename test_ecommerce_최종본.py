@@ -45,14 +45,17 @@ def test_user_creation_username_special_characters():
         User('user@name', 'Password123!', 'user@example.com')
 # Contains leading or trailing spaces (invalid):
 
-def test_user_creation_username_with_spaces():
+def test_user_creation_username_with_leading_spaces():
     # Edge Case: Username with leading spaces (invalid)
     with pytest.raises(ValueError, match="Invalid username"):
         User(' user', 'Password123!', 'user@example.com')
-    
+
+def test_user_creation_username_with_trailing_spaces():
     # Edge Case: Username with trailing spaces (invalid)
     with pytest.raises(ValueError, match="Invalid username"):
         User('user ', 'Password123!', 'user@example.com')
+
+
 # Contains mixed case (e.g., "User" vs "user"):
 
 def test_user_creation_username_mixed_case():
@@ -133,14 +136,20 @@ def test_user_creation_email_very_long():
     user = User('janedoe', 'Password123!', long_email)
     assert user.email == long_email
 # Leading or trailing spaces (to be removed):
-def test_user_creation_email_with_spaces():
+def test_user_creation_email_with_leading_spaces():
     # Edge Case: Email with leading spaces
-    user1 = User('janedoe', 'Password123!', ' user@domain.com')
-    assert user1.email == 'user@domain.com'
-    
+    user = User('janedoe', 'Password123!', ' user@domain.com')
+    assert user.email == 'user@domain.com'
+
+def test_user_creation_email_with_trailing_spaces():
     # Edge Case: Email with trailing spaces
-    user2 = User('janedoe', 'Password123!', 'user@domain.com ')
-    assert user2.email == 'user@domain.com'
+    user = User('janedoe', 'Password123!', 'user@domain.com ')
+    assert user.email == 'user@domain.com'
+
+
+
+
+
 # Duplicate email:
 
 def test_user_creation_duplicate_email():
@@ -196,15 +205,18 @@ def test_update_email_very_long():
     user.update_email(long_email)
     assert user.email == long_email
 # Leading or trailing spaces (to be removed):
-def test_update_email_with_spaces():
+def test_update_email_with_leading_spaces():
     # Edge Case: Update email with leading spaces
     user = User('janedoe', 'Password123!', 'janedoe@example.com')
     user.update_email(' user@domain.com')
     assert user.email == 'user@domain.com'
-    
+
+def test_update_email_with_trailing_spaces():
     # Edge Case: Update email with trailing spaces
+    user = User('janedoe', 'Password123!', 'janedoe@example.com')
     user.update_email('user@domain.com ')
     assert user.email == 'user@domain.com'
+
 # Duplicate email:
 
 def test_update_email_duplicate_email():
@@ -689,22 +701,25 @@ def test_order_initialization_empty_address():
         Order(user, items, '', 'credit_card')
 
 # Edge Case: Address length is exactly 1 or 100 characters
-def test_order_initialization_boundary_address_length():
-    """
-    Edge Case: Initialize an order with address length exactly 1 or 100 characters.
-    """
+def test_order_initialization_min_address_length():
+    # Edge Case: Address length 1
     user = User('johndoe', 'Password123!', 'johndoe@example.com')
     product = Product('Laptop', 999.99, 'A high-performance laptop')
     items = [{'product': product, 'quantity': 1}]
     
-    # Address length 1
     order_min_address = Order(user, items, 'A', 'credit_card')
     assert order_min_address.address == 'A'
+
+def test_order_initialization_max_address_length():
+    # Edge Case: Address length 100
+    user = User('johndoe', 'Password123!', 'johndoe@example.com')
+    product = Product('Laptop', 999.99, 'A high-performance laptop')
+    items = [{'product': product, 'quantity': 1}]
     
-    # Address length 100
     max_address = 'A' * 100
     order_max_address = Order(user, items, max_address, 'credit_card')
     assert order_max_address.address == max_address
+
 
 # Edge Case: Address exceeds 100 characters (invalid)
 def test_order_initialization_long_address():
@@ -1143,16 +1158,21 @@ def test_add_to_cart_without_login():
 
 # Edge Test Cases for checkout Method
 # Edge Case 1: Address length is exactly 1 or 100 characters
-def test_checkout_address_length_boundary():
-    """
-    Edge Case: Checkout with addresses that are exactly 1 or 100 characters long.
-    """
+def test_checkout_min_address_length():
+    # Edge Case: Address length 1
     app = EcommerceApp()
     app.register_user('johndoe', 'Password123!', 'johndoe@example.com')
     app.add_product('Laptop', 999.99, 'A high-performance laptop')
     app.add_to_cart('johndoe', 0, 2)
-    assert app.checkout('johndoe', 'A', 'credit_card') != -1  # Address with length 1
-    assert app.checkout('johndoe', 'A' * 100, 'credit_card') != -1  # Address with length 100
+    assert app.checkout('johndoe', 'A', 'credit_card') != -1
+
+def test_checkout_max_address_length():
+    # Edge Case: Address length 100
+    app = EcommerceApp()
+    app.register_user('johndoe', 'Password123!', 'johndoe@example.com')
+    app.add_product('Laptop', 999.99, 'A high-performance laptop')
+    app.add_to_cart('johndoe', 0, 2)
+    assert app.checkout('johndoe', 'A' * 100, 'credit_card') != -1
 
 # Edge Case 2: Address with special characters
 def test_checkout_address_with_special_characters():
