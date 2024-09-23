@@ -229,8 +229,7 @@ def test_update_email_mixed_case():
 ############################
 ### class Product Tests ###
 ############################
-import pytest
-from complete_code import Product
+
 
 def test_product_creation_with_valid_data():
     # General Case 1: Valid product creation with standard input
@@ -391,8 +390,7 @@ def test_product_description_with_non_string_values():
 ###################################
 ### class ShoppingCart Tests ###
 ###################################
-import pytest
-from complete_code import Product, ShoppingCart
+
 
 def test_add_single_product_to_cart():
     """
@@ -874,8 +872,6 @@ def test_update_status_to_same_status():
 ### class EcommerceApp Tests ###
 ###############################
 
-import pytest
-from complete_code import EcommerceApp, User, Product
 
 # General Test Case 1: Initialize the EcommerceApp
 def test_initialize_ecommerce_app():
