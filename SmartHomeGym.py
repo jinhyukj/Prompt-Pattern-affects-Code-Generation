@@ -35,8 +35,6 @@ class User:
             return False
         if not any(char in "!@#$%^&*()_+" for char in password):
             return False
-        # if any(char.isspace() for char in password):
-        #     return False
         return True
 
     @staticmethod
@@ -182,16 +180,6 @@ class Calendar:
             raise ValueError("User must be logged in to access the calendar")
         self.user = user
 
-    # def input_workout(self, date: str, exercise_name: str, duration: int):
-    #     """
-    #     Input an exercise and duration for a specific date.
-    #     """
-    #     calendar = self.user.calendar
-    #     if date in calendar:
-    #         self.user.calendar[date].append({'name': exercise_name, 'duration': duration})
-    #     else:
-    #         self.user.calendar.update({date: [{'name': exercise_name, 'duration': duration}]})
-
     def input_workout(self, date: str, exercise_name: str, duration: int):
         """Input an exercise and duration for a specific date."""
         
@@ -252,14 +240,6 @@ class ExerciseSystem:
         :param exercise_name: str, the name of the exercise.
         :param duration: int, the duration of the exercise in minutes.
         """
-
-        # exercise = {
-        #     'name': exercise_name,
-        #     'duration': duration
-        # }
-        # self.user.exercises.append(exercise)
-
-
         # Validate that the exercise name is not empty
         if not exercise_name.strip():
             raise ValueError("Exercise name cannot be empty.")
@@ -292,44 +272,10 @@ class ExerciseSystem:
         # Parameter/Return Description
         :return: str, the total exercise duration in minutes.
         """
-        # total_duration = sum(exercise['duration'] for exercise in self.user.exercises)
-        # goal = sum(exercise['duration'] for exercise in self.user.calendar[date])
+        # Validate that the date does not contain leading or trailing whitespace
+        if date != date.strip():
+            raise ValueError(f"Date contains leading or trailing whitespace: '{date}'.")
 
-        # if total_duration >= goal: 
-        #     return f"Total exercise duration: {total_duration} minutes, exceeded goal by {total_duration - goal} minutes"
-        # else:
-        #     return f"Total exercise duration: {total_duration} minutes, {goal - total_duration} minutes short of your goal"
-
-        ############################################################
-        # # Trim whitespace from date
-        # date = date.strip()
-
-        # # Validate date format (expecting YYYY-MM-DD)
-        # if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
-        #     raise ValueError(f"Invalid date format: {date}. Expected format is YYYY-MM-DD.")
-
-        # # Check for valid month and day (basic check, could be extended for leap years)
-        # year, month, day = map(int, date.split('-'))
-        # if not (1 <= month <= 12) or not (1 <= day <= 31):  # Simplified validation
-        #     raise ValueError(f"Non-existent date: {date}.")
-
-        # # Check if exercises exist for the provided date
-        # if date not in self.user.calendar or not self.user.calendar[date]:
-        #     # If no exercises found for the date, raise a ValueError
-        #     raise ValueError(f"No exercises found for date: {date}")
-
-        # # Calculate total duration and compare with the goal
-        # goal = sum(exercise['duration'] for exercise in self.user.calendar[date])
-        # total_duration = sum(exercise['duration'] for exercise in self.user.exercises)
-
-        # if total_duration >= goal:
-        #     return f"Total exercise duration: {total_duration} minutes, exceeded goal by {total_duration - goal} minutes"
-        # else:
-        #     return f"Total exercise duration: {total_duration} minutes, {goal - total_duration} minutes short of your goal"
-
-        ###################################
-        # Trim whitespace from date
-        date = date.strip()
 
         # Validate date format (expecting YYYY-MM-DD)
         if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
@@ -340,16 +286,9 @@ class ExerciseSystem:
         if not (1 <= month <= 12) or not (1 <= day <= 31):  # Simplified validation
             raise ValueError(f"Non-existent date: {date}.")
 
-        # Check if exercises exist for the provided date in the user's calendar
-        user_exercises_on_date = self.user.calendar.get(date, [])
+        goal = sum(exercise['duration'] for exercise in self.user.calendar.get(date, []))
+        total_duration = sum(exercise['duration'] for exercise in self.user.exercises)
 
-        # If no exercises are found, treat it as zero minutes, instead of raising an error
-        if not user_exercises_on_date:
-            return f"Total exercise duration: 0 minutes, 0 minutes short of your goal"
-
-        # Calculate total duration of exercises on that date
-        goal = sum(exercise['duration'] for exercise in user_exercises_on_date)
-        total_duration = sum(exercise['duration'] for exercise in user_exercises_on_date)
 
         # Provide feedback based on whether total duration meets or exceeds the goal
         if total_duration >= goal:
@@ -373,10 +312,6 @@ class Ranking:
         """
         Calculates and updates the exercise rankings for all users.
         """
-        # sorted_users = sorted(self.membership.users, key=lambda user: sum(ex['duration'] for ex in user.exercises), reverse=True)
-        # for rank, user in enumerate(sorted_users, 1):
-        #     user.rank = rank
-
         # Create a list of (user, total_duration) tuples
         user_durations = [(user, sum(exercise['duration'] for exercise in user.exercises)) for user in self.membership.users]
         
@@ -407,16 +342,14 @@ class Ranking:
         :param username: str, the username of the user.
         :return: int, the rank of the user, or None if the user is not found.
         """
-        # user = next((user for user in self.membership.users if user.username == username), None)
-        # if user:
-        #     return user.rank
-        # return None
+        if username != username.strip():
+            raise ValueError
 
         # Find the user
         user = next((user for user in self.membership.users if user.username == username), None)
-        
+
         if user is None:
-            raise ValueError(f"User {username} does not exist.")
+            return None
         
         # Check if the user is logged in
         if not user.logged_in:
@@ -435,12 +368,6 @@ class Ranking:
         :param username: str, the username of the user.
         :return: str, a message about the user's ranking.
         """
-        # rank = self.get_user_ranking(username)
-        # if rank:
-        #     return f"User {username} is ranked #{rank} in the Smart Home-Gym community!"
-        # return "User not found or no ranking available."
-
-
         # Check if username contains leading or trailing whitespace
         if username.strip() != username:
             raise ValueError("Username contains leading or trailing whitespace.")
