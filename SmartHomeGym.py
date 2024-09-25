@@ -9,7 +9,7 @@ class User:
         """
         Initializes a new user with a username, password, email, and initializes exercise list and rank.
         """
-        # username = username.strip()
+        username = username.strip()
         if not (3 <= len(username) <= 20 and username.isalnum()):
             raise ValueError("Invalid username")
         if not self._is_valid_password(password):
